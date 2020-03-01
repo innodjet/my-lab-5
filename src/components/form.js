@@ -1,15 +1,16 @@
 import React from "react";
 import PropTypes from "prop-types";
+import { Multiselect } from "multiselect-react-dropdown";
 
-const displayOption = (el, id) => {
-  return (
-    <option value={el} key={id}>
-      {el}
-    </option>
-  );
-};
-
-const Form = ({ el, handleInputEvent, formData }) => {
+const Form = ({
+  el,
+  handleInputEvent,
+  formData,
+  multiSelectDataToDisplay,
+  onSelect,
+  onRemove,
+  selectedValue
+}) => {
   let element;
   const {
     FirstName,
@@ -20,6 +21,7 @@ const Form = ({ el, handleInputEvent, formData }) => {
     Gender,
     ContactNumber
   } = formData[0];
+
   const toltips = el.description ? (
     <a href="/#" data-toggle="tooltip" title={el.description}>
       <i className="fas fa-info-circle"></i>
@@ -138,8 +140,12 @@ const Form = ({ el, handleInputEvent, formData }) => {
               onChange={handleInputEvent}
             >
               <option value="">Please select</option>
-              {el.options.map((ol, index) => {
-                return displayOption(ol, index);
+              {el.options.map(ol => {
+                return (
+                  <option value={ol} key={ol}>
+                    {ol}
+                  </option>
+                );
               })}
             </select>
           </div>{" "}
@@ -151,18 +157,15 @@ const Form = ({ el, handleInputEvent, formData }) => {
         <>
           <div className="form-group" key={el.id}>
             <label>{el.name}</label> {toltips}
-            <select
-              className="form-control selectpicker"
-              title="Choose one or more of the following..."
-              name={el.name}
-              id={el.id}
-              onChange={handleInputEvent}
-              multiple
-            >
-              {el.options.map((ol, index) => {
-                return displayOption(ol, index + 10);
-              })}
-            </select>
+            <Multiselect
+              options={multiSelectDataToDisplay(el.options)}
+              selectedValues={selectedValue}
+              onSelect={onSelect}
+              onRemove={onRemove}
+              placeholder={selectedValue.length === 0 ? "Please select" : ""}
+              showCheckbox={true}
+              displayValue="name"
+            />
           </div>
         </>
       );
@@ -177,7 +180,11 @@ const Form = ({ el, handleInputEvent, formData }) => {
 Form.propTypes = {
   el: PropTypes.object.isRequired,
   handleInputEvent: PropTypes.func.isRequired,
-  formData: PropTypes.array.isRequired
+  formData: PropTypes.array.isRequired,
+  multiSelectDataToDisplay: PropTypes.func.isRequired,
+  onSelect: PropTypes.func.isRequired,
+  onRemove: PropTypes.func.isRequired,
+  selectedValue: PropTypes.array.isRequired
 };
 
 export default Form;

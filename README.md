@@ -1,5 +1,27 @@
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
+## Project Description
+
+● Using the provided JSON database ‘database.json’, display the 8 form elements on a
+page with relevant input fields based on the form element type
+
+● If the form element contains a description, the description should show via a tooltip
+when hovered over
+
+● Each form element should be validated upon data entry and if not the correct format,
+should show a relevant error message
+
+● Include a progress bar which should auto-update based on the number of valid form
+fields completed
+
+● Show a submission button which should only be enabled when all form elements
+contain a valid value
+
+● Upon clicking the submission button, the form values should be downloaded into a
+csv file called ‘submissions.csv’
+
+● The form element values should then be reset
+
 ## Available Scripts
 
 In the project directory, you can run:

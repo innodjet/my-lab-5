@@ -1,9 +1,9 @@
 import React from "react";
 import "./App.css";
 import { data } from "./database/data";
-import Nav from "./components/nav";
-import Body from "./components/body";
-import Footer from "./components/footer";
+import Nav from "./components/Nav";
+import Body from "./components/Body";
+import Footer from "./components/Footer";
 import PropTypes from "prop-types";
 
 function App() {

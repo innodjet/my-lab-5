@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
-import Form from "./form";
+import Form from "./Form";
 import validator from "validator";
 import CsvCreator from "react-csv-creator";
 
@@ -12,114 +12,95 @@ const Body = ({ data }) => {
     Email: "",
     Address: "",
     ContactNumber: "",
-    Gender: "",
-    AreasOfRecommendation: []
+    Gender: ""
   };
   const [progress, setProgress] = useState(0);
   const [errorMessage, setErrorMessage] = useState("");
   const [formData, setFormData] = useState([initData]);
+  const [selectedValue, setSelectedValue] = useState([]);
+  let rows = []; // csv creation row data
+
+  useEffect(() => {
+    updateProgressBar();
+  });
+
+  const multiSelectDataToDisplay = data => {
+    let result = [];
+    data.forEach((el, index) => {
+      result.push({
+        name: el,
+        id: index
+      });
+    });
+    return result;
+  };
+
+  const objectMap = {
+    "First Name": "FirstName",
+    "Last Name": "LastName",
+    "Date of Birth": "DateOfBirth",
+    Email: "Email",
+    Address: "Address",
+    "Contact Number": "ContactNumber",
+    Gender: "Gender"
+  };
 
   const handleInputEvent = event => {
     event.preventDefault();
     const newData = formData.map(el => {
-      if (parseInt(event.target.id) === 1) {
-        el.FirstName = event.target.value;
-      } else if (parseInt(event.target.id) === 2) {
-        // Last Name
-        el.LastName = event.target.value;
-      } else if (parseInt(event.target.id) === 3) {
-        // Date Of Birth
-        el.DateOfBirth = event.target.value;
-      } else if (parseInt(event.target.id) === 4) {
-        // Email
-        el.Email = event.target.value;
-      } else if (parseInt(event.target.id) === 5) {
-        // Address
-        el.Address = event.target.value;
-      } else if (parseInt(event.target.id) === 6) {
-        // Contact Number
-        el.ContactNumber = event.target.value;
-      } else if (parseInt(event.target.id) === 7) {
-        // Gender
-        el.Gender = event.target.value;
-      } else if (parseInt(event.target.id) === 8) {
-        console.log(event.target.value);
-        // Areas of Recommendation
-        const temp = document
-          .getElementsByClassName("filter-option-inner-inner")[0]
-          .innerHTML.toString()
-          .split(",");
-        if (
-          temp.length === 1 &&
-          temp[0] === "Choose one or more of the following..."
-        ) {
-          el.AreasOfRecommendation = [];
-        } else {
-          el.AreasOfRecommendation = temp;
-        }
-      }
-      return el;
+      let rObj = el;
+      rObj[objectMap[event.target.name]] = event.target.value;
+      return rObj;
     });
     setFormData(newData);
-    validateData(parseInt(event.target.id));
+    validateData(event.target);
   };
 
-  const validateData = targetId => {
+  const onSelect = selectedList => {
+    setSelectedValue(selectedList);
+    validateData({
+      id: 8,
+      value: selectedList,
+      name: "Areas of Recommendation"
+    });
+  };
+
+  const onRemove = selectedList => {
+    setSelectedValue(selectedList);
+    const value = selectedList.length === 0 ? "" : selectedList;
+    validateData({ id: 8, value: value, name: "Areas of Recommendation" });
+  };
+
+  const formHtmlElement = data.map(el => {
+    return (
+      <Form
+        el={el}
+        key={el.id}
+        handleInputEvent={handleInputEvent}
+        formData={formData}
+        multiSelectDataToDisplay={multiSelectDataToDisplay}
+        onSelect={onSelect}
+        onRemove={onRemove}
+        selectedValue={selectedValue}
+      ></Form>
+    );
+  });
+
+  const validateData = target => {
     setErrorMessage("");
-    const {
-      FirstName,
-      LastName,
-      DateOfBirth,
-      Email,
-      Address,
-      ContactNumber,
-      Gender,
-      AreasOfRecommendation
-    } = formData[0];
-
-    // Check if fields are empty
-    if (targetId === 1 && FirstName === "") {
-      // First Name
-      setErrorMessage("Please enter a First Name");
-    } else if (targetId === 2 && LastName === "") {
-      // Last Name
-      setErrorMessage("Please enter a Last Name");
-    } else if (targetId === 3 && DateOfBirth === "") {
-      // Date Of Birth
-      setErrorMessage("Please select a Date Of Birth");
-    } else if (targetId === 4 && Email === "") {
-      // Email
-      setErrorMessage("Please enter your Email");
-    } else if (targetId === 5 && Address === "") {
-      // Address
-      setErrorMessage("Please enter your Address");
-    } else if (targetId === 6 && ContactNumber === "") {
-      // Contact Number
-      setErrorMessage("Please enter your Contact Number");
-    } else if (targetId === 7 && Gender === "") {
-      // Gender
-      setErrorMessage("Please select your Gender");
-    } else if (targetId === 8 && AreasOfRecommendation === "") {
-      // Areas of Recommendation
-      setErrorMessage("Please select an Areas of Recommendation");
-    }
-
-    // Validate Email
-    if (targetId === 4 && Email !== "" && validator.isEmail(Email) === false) {
-      // Email
-      setErrorMessage("Please enter a valid Email");
-    }
-
-    // Validate phone number
-    if (
-      targetId === 6 &&
-      ContactNumber !== "" &&
-      validator.isMobilePhone(ContactNumber) === false
+    if (target.value === "") {
+      setErrorMessage(`${target.name} is required to submit the form`);
+    } else if (
+      parseInt(target.id) === 4 &&
+      validator.isEmail(target.value) === false
     ) {
-      // Contact Number
+      setErrorMessage("Please enter a valid Email");
+    } else if (
+      parseInt(target.id) === 6 &&
+      validator.isMobilePhone(target.value) === false
+    ) {
       setErrorMessage("Please enter a valid Contact Number");
     }
-
     updateProgressBar();
   };
 
@@ -131,26 +112,24 @@ const Body = ({ data }) => {
         countNumberofFieldFilled++;
       }
     });
-    setProgress(countNumberofFieldFilled * (100 / getKeys.length));
+    if (selectedValue.length > 0) {
+      countNumberofFieldFilled++;
+    }
+    setProgress(countNumberofFieldFilled * (100 / (getKeys.length + 1)));
   };
 
-  const formHtmlElement = data.map(el => {
-    return (
-      <Form
-        el={el}
-        key={el.id}
-        handleInputEvent={handleInputEvent}
-        formData={formData}
-      ></Form>
-    );
-  });
-
-  // Feed data for csv creation
-  let rows = formData;
-
   const generateCsvRows = () => {
+    // Prepare the data for csv generation
+    const areaOfRecommendationSelected = [];
+    selectedValue.forEach(el => {
+      areaOfRecommendationSelected.push(el.name);
+    });
+    formData[0]["areaOfRecommendations"] = areaOfRecommendationSelected;
+    // Feed data for csv creation
+    rows.push(formData[0]);
     // Reset the form
     setFormData([initData]);
+    setSelectedValue([]);
     setProgress(0);
   };
 
@@ -165,6 +144,7 @@ const Body = ({ data }) => {
             aria-valuenow="25"
             aria-valuemin="0"
             aria-valuemax="100"
+            data-testid="form-progress-bar"
           ></div>
         </div>
       </div>
@@ -181,14 +161,15 @@ const Body = ({ data }) => {
             ""
           )}
 
+          <div className="card-body">{formHtmlElement}</div>
           <div className="card-body">
-            {formHtmlElement}
             <CsvCreator filename="submissions" rows={rows}>
               <button
                 type="button"
                 className="btn btn-lg btn-primary float-right"
                 disabled={progress < 100 ? true : false}
                 onClick={generateCsvRows}
+                data-testid="submit-form-id"
               >
                 Submit
               </button>
@@ -202,8 +183,13 @@ const Body = ({ data }) => {
 
 Body.propTypes = {
   data: PropTypes.array,
+  el: PropTypes.object,
   handleInputEvent: PropTypes.func,
-  formData: PropTypes.array
+  formData: PropTypes.array,
+  multiSelectDataToDisplay: PropTypes.func,
+  onSelect: PropTypes.func,
+  onRemove: PropTypes.func,
+  selectedValue: PropTypes.array
 };
 
 export default Body;
