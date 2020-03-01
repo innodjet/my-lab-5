@@ -171,7 +171,7 @@ const Body = ({ data }) => {
                 onClick={generateCsvRows}
                 data-testid="submit-form-id"
               >
-                Submit
+                <i class="fas fa-paper-plane"></i> Submit
               </button>
             </CsvCreator>
           </div>
