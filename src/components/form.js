@@ -165,6 +165,7 @@ const Form = ({
               placeholder={selectedValue.length === 0 ? "Please select" : ""}
               showCheckbox={true}
               displayValue="name"
+              closeOnSelect={false}
             />
           </div>
         </>
