@@ -166,6 +166,7 @@ const Form = ({
               showCheckbox={true}
               displayValue="name"
               closeOnSelect={false}
+              avoidHighlightFirstOption={true}
             />
           </div>
         </>
