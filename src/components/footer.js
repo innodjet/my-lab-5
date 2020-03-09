@@ -13,7 +13,7 @@ const Footer = () => {
             Front End: HTML 5, CSS 3, JavaScript, Bootstrap{" "}
           </p>
           <a
-            href="https://github.com/innodjet/my-lab-6"
+            href="https://github.com/innodjet/my-lab-5"
             target="_blank"
             rel="noopener noreferrer"
             className="btn btn-primary"
