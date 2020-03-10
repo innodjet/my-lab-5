@@ -22,7 +22,7 @@ const Body = ({ data }) => {
 
   useEffect(() => {
     updateProgressBar();
-  });
+  },[]);
 
   const multiSelectDataToDisplay = data => {
     let result = [];
